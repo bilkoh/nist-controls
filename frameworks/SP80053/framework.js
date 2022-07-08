@@ -74,8 +74,6 @@ exports.makeFramework = (data) => {
 
         return callback(null, control);
       }
-      // console.log("done", controls);
-      // console.log("done", _.filter(controls, { id: "AC-11.1" }));
     }, enhancements);
   };
 

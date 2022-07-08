@@ -35,7 +35,6 @@ exports.makeControl = (data) => {
     statements: () => {
       // recursive function b/c statements have nested statements (parts)
       const processParts = (parts, params) => {
-        // console.log(params);
         const items = [];
         let label, // usually a,b,c, or 1,2,3
           prose; // holds statement with handlebars

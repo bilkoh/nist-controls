@@ -73,7 +73,6 @@ const getBaselines = (callback) => {
 
       el.forEach((e, i) => {
         const baselineKey = indexToKeysScheme[i];
-        // console.log(baselineKey, "controls: ", e.length);
         e.forEach((ee) => {
           let val = _.has(baselines, ee) ? baselines[ee] : [];
           val = _.union(val, [baselineKey]);
