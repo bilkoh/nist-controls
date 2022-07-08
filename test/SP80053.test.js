@@ -99,19 +99,4 @@ describe("Testing SP80053 framework", () => {
       }
     }, false);
   });
-
-  it("should return 9", (done) => {
-    sp.getControlById(
-      "AC-2(1)",
-      (err, el) => {
-        try {
-          assert.equal(3 * 3, 9);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      true
-    );
-  });
 });
