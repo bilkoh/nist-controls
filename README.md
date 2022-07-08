@@ -4,9 +4,9 @@ An npm module to access NIST framework controls.
 
 ## The Problem:
 
-There are plenty of sources nist controls: pdfs, websites, excel spread sheets. [(See NIST Data Sources)](#NIST-Data-Sources)
+There are plenty of sources nist for controls: pdfs, websites, excel spread sheets. [(See NIST Data Sources)](#NIST-Data-Sources)
 
-I wanted to plug these controls into various tools or api I create for policy analysis. But the data sources were missing certain fields. Other data sources, were inconsistently labelled, missing baselines, and a host of other problems.
+I wanted to plug these controls into various tools or api I create for policy analysis. But the data sources were missing certain fields. Other data sources, were inconsistently labelled, missing baselines, and a host of other problems. So I developed this npm package.
 
 ## How To Use:
 
