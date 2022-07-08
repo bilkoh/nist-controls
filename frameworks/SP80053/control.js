@@ -139,7 +139,15 @@ exports.makeControl = (data) => {
 
       return statements;
     },
-    related: () => {},
+    related: () => {
+      const links = _.get(controlData, "links");
+      const related = _.filter(links, { rel: "related" });
+      return related.map((el) => {
+        const str = el.href;
+        const pos = str.indexOf("#");
+        return str.substring(pos + 1, str.length);
+      });
+    },
     enhancements: () => {},
     enhancementsByBaseline: () => {},
   };
@@ -153,6 +161,7 @@ exports.makeControl = (data) => {
     "withdrawn",
     "guidance",
     "statements",
+    "related",
   ];
 
   // optional function we run on controls to accomplish the following:

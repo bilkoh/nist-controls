@@ -80,10 +80,7 @@ describe("Testing SP80053 framework", () => {
           const match = hay.match(needle);
           if (match) return renderedCtl.controlId;
           else return null;
-
-          // if (!match) done();
         });
-        // done();
         handlebarsFound = handlebarsFound.filter((el) => {
           if (el) return true;
           return false;
@@ -98,5 +95,23 @@ describe("Testing SP80053 framework", () => {
         done(err);
       }
     }, false);
+  });
+
+  it("render -- check related", (done) => {
+    // prettier-ignore
+    const relatedTest = ['ac-3',  'ac-5',  'ac-6',  'ac-17','ac-18', 'ac-20', 'ac-24', 'au-2','au-12', 'cm-5',  'ia-2',  'ia-4','ia-5',  'ia-8',  'ma-3',  'ma-5','pe-2',  'pl-4',  'ps-2',  'ps-4','ps-5',  'ps-7',  'pt-2',  'pt-3','sc-7',  'sc-12', 'sc-13', 'sc-37']
+    sp.getControlById(
+      "AC-2",
+      (err, el) => {
+        try {
+          const renderedCtl = el.render();
+          assert.deepEqual(renderedCtl.related, relatedTest);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      },
+      true
+    );
   });
 });
