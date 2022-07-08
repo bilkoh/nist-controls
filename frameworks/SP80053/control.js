@@ -148,8 +148,15 @@ exports.makeControl = (data) => {
         return str.substring(pos + 1, str.length);
       });
     },
-    enhancements: () => {},
-    enhancementsByBaseline: () => {},
+    enhancements: () => {
+      const controls = _.get(controlData, "controls");
+      const enhancements = _.filter(controls, {
+        class: "SP800-53-enhancement",
+      });
+      return enhancements.map((el) => {
+        return { id: el.id, baselines: el.baselines };
+      });
+    },
   };
 
   const defaultRenderFields = [
@@ -162,6 +169,7 @@ exports.makeControl = (data) => {
     "guidance",
     "statements",
     "related",
+    "enhancements",
   ];
 
   // optional function we run on controls to accomplish the following:
@@ -181,8 +189,17 @@ exports.makeControl = (data) => {
     return renderedControl;
   };
 
+  const enhancementsByBaseline = (baseline) => {
+    baseline = baseline.toUpperCase();
+    // console.log(typeof baseline);
+    const rendered = render(["enhancements"]);
+    const enhancements = rendered.enhancements;
+    return _.filter(enhancements, { baselines: [baseline] });
+  };
+
   return {
     ...controlData,
     render: render,
+    enhancementsByBaseline: enhancementsByBaseline,
   };
 };
