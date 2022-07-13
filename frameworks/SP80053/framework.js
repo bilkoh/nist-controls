@@ -5,6 +5,21 @@ exports.makeFramework = (data) => {
 
   let frameworkData = data;
 
+  const getFamilies = (callback) => {
+    const families = _.filter(frameworkData, { class: "family" });
+    return callback(null, families);
+  };
+
+  const getFamiliesById = (controlId, callback) => {
+    // force lowercase
+    controlId = controlId.toLowerCase();
+
+    getFamilies((err, families) => {
+      const family = _.find(families, (el) => el.id === controlId);
+      return callback(null, family);
+    });
+  };
+
   const getControls = async (callback, enhancements = true) => {
     const bl = require("./baselines");
 
@@ -15,7 +30,7 @@ exports.makeFramework = (data) => {
     let controls = [];
 
     _.eachDeep(
-      data,
+      frameworkData,
       (child, i, parent, ctx) => {
         if (
           (child.id && child.class === "SP800-53") ||
@@ -81,5 +96,7 @@ exports.makeFramework = (data) => {
     frameworkData: frameworkData,
     getControls: getControls,
     getControlById: getControlById,
+    getFamilies: getFamilies,
+    getFamiliesById: getFamiliesById,
   };
 };

@@ -69,6 +69,32 @@ describe("Testing SP80053 framework", () => {
       true
     );
   });
+
+  it("getFamilies -- should return 20 control families", (done) => {
+    sp.getFamilies((err, el) => {
+      try {
+        assert.equal(el.length, 20);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    }, true);
+  });
+
+  it("getFamiliesBy -- title for PL family should be `Planning`", (done) => {
+    sp.getFamiliesById(
+      "PL",
+      (err, el) => {
+        try {
+          assert.equal(el.title, "Planning");
+          done();
+        } catch (e) {
+          done(e);
+        }
+      },
+      true
+    );
+  });
 });
 
 describe("Testing SP80053 controls", () => {

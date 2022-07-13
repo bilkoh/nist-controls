@@ -67,5 +67,3 @@ Missing parent info.
 ## Todo
 
 - Add CSF framework
-- Add getFamilies to Framework (SP80053) to get controls by family
-- Add enchancement, enhancements by baseline, to render function in Control (SP80053)
