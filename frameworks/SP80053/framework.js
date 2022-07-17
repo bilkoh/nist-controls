@@ -1,12 +1,56 @@
+const _ = require("lodash");
+require("deepdash")(_);
+
+// frameworkData supplied needs to be processed. This function:
+// brings in missing data from other data source (baselines)
+// standardizes controlId case (upper)
+// adds parent detail to control/enhancement
+const initFrameworkData = async (d) => {
+  const bl = require("./baselines");
+  const util = require("util");
+  const getBaselinesPromisified = util.promisify(bl.getBaselines);
+  const allBaselines = await getBaselinesPromisified();
+
+  return _.eachDeep(
+    d,
+    (child, i, parent, ctx) => {
+      if (
+        (child.id && child.class === "SP800-53") ||
+        child.class === "SP800-53-enhancement"
+      ) {
+        // force upper case
+        child.id = child.id.toUpperCase();
+
+        // pass needed  info from parent
+        child.parentId = parent.id;
+        child.parentTitle = parent.title;
+
+        // since id from json source uses dot notation for enhancement
+        // and the baselines come from xml with use parentheses,
+        // I've got to convert for baseline lookups
+        let idForBaselines = child.id;
+        if (child.id.indexOf(".") !== -1) {
+          const [ctl, enh] = child.id.split(".");
+          idForBaselines = `${ctl}(${enh})`;
+        }
+
+        child.baselines = allBaselines[idForBaselines.toUpperCase()] || [];
+      }
+    },
+    {
+      childrenPath: "controls",
+    }
+  );
+};
+
 exports.makeFramework = (data) => {
-  const _ = require("lodash");
-  require("deepdash")(_);
   const makeControl = require("./control").makeControl;
 
   let frameworkData = data;
 
-  const getFamilies = (callback) => {
-    const families = _.filter(frameworkData, { class: "family" });
+  const getFamilies = async (callback) => {
+    const d = await initFrameworkData(frameworkData);
+    const families = _.filter(d, { class: "family" });
     return callback(null, families);
   };
 
@@ -21,40 +65,17 @@ exports.makeFramework = (data) => {
   };
 
   const getControls = async (callback, enhancements = true) => {
-    const bl = require("./baselines");
-
-    const util = require("util");
-    const getBaselinesPromisified = util.promisify(bl.getBaselines);
-    const allBaselines = await getBaselinesPromisified();
-
+    const d = await initFrameworkData(frameworkData);
     let controls = [];
 
     _.eachDeep(
-      frameworkData,
+      d,
       (child, i, parent, ctx) => {
         if (
           (child.id && child.class === "SP800-53") ||
           (enhancements && child.class === "SP800-53-enhancement")
         ) {
-          // force upper case
-          child.id = child.id.toUpperCase();
-
-          // pass needed  info from parent
-          child.parentId = parent.id;
-          child.parentTitle = parent.title;
-
-          // since id from json source uses dot notation for enhancement
-          // and the baselines come from xml with use parentheses,
-          // I've got to convert for baseline lookups
-          let idForBaselines = child.id;
-          if (child.id.indexOf(".") !== -1) {
-            const [ctl, enh] = child.id.split(".");
-            idForBaselines = `${ctl}(${enh})`;
-          }
-
-          child.baselines = allBaselines[idForBaselines.toUpperCase()] || [];
           controls.push(makeControl(child));
-          // controls.push(child);
         }
       },
       {
