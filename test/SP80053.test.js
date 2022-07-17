@@ -1,5 +1,6 @@
 const assert = require("assert");
 const SP80053 = require("../index").SP80053;
+const _ = require("lodash");
 
 const sp = SP80053();
 
@@ -203,7 +204,7 @@ describe("Testing SP80053 controls", () => {
       "AC-13",
       (err, el) => {
         try {
-          const renderedCtl = el.render(["withdrawn", "statements"]);
+          const renderedCtl = el.render(["statements"]);
           assert.deepEqual(renderedCtl.statements, testData);
           done();
         } catch (err) {
@@ -212,5 +213,20 @@ describe("Testing SP80053 controls", () => {
       },
       true
     );
+  });
+
+  it("withdrawn -- withdrawn status should be available before render() - AC-13 should be withdrawn ", (done) => {
+    sp.getFamilies((err, el) => {
+      try {
+        // assert.equal(el.length, 20);
+        // const c = el[0].controls[12];
+        const c = _.find(el[0].controls, { id: "AC-13" });
+        // console.log(c.id, c.withdrawn);
+        assert.equal(c.withdrawn, true);
+        done();
+      } catch (e) {
+        done(e);
+      }
+    }, true);
   });
 });

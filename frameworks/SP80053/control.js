@@ -13,14 +13,6 @@ exports.makeControl = (data) => {
         title: _.get(controlData, "parentTitle"),
       };
     },
-    withdrawn: () => {
-      const props = _.get(controlData, "props");
-      if (props)
-        if (_.find(props, { name: "status", value: "withdrawn" })) {
-          return true;
-        }
-      return false;
-    },
     guidance: () => {
       // `guidance` field is one long string, with `\n\n` separating paragraphs
       // we'll want to break it up into an array of elements per paragraph
@@ -120,12 +112,7 @@ exports.makeControl = (data) => {
       };
 
       // check if withdrawn, if true, we generate statement from `links`
-      if (
-        _.find(_.get(controlData, "props", {}), {
-          name: "status",
-          value: "withdrawn",
-        })
-      ) {
+      if (controlData.withdrawn) {
         // this is a withdrawn control
         const links = _.get(controlData, "links", null);
         const statements = {};
@@ -209,7 +196,6 @@ exports.makeControl = (data) => {
     "framework",
     "baselines",
     "parent",
-    "withdrawn",
     "guidance",
     "statements",
     "related",
@@ -219,7 +205,6 @@ exports.makeControl = (data) => {
   // optional function we run on controls to accomplish the following:
   //  - better labels of important fields
   //  - include family id and name from parent
-  //  - determine if this is a withdrawn control
   //  - guidance string w/ newlines split into an array
   //  fill in assignment placeholders in statements from params object
   const render = (fields = defaultRenderFields) => {

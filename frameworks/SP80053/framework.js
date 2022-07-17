@@ -21,6 +21,13 @@ const initFrameworkData = async (d) => {
         // force upper case
         child.id = child.id.toUpperCase();
 
+        // check if control is withdrawn
+        child.withdrawn = false;
+        const props = _.get(child, "props");
+        if (props)
+          if (_.find(props, { name: "status", value: "withdrawn" }))
+            child.withdrawn = true;
+
         // pass needed  info from parent
         child.parentId = parent.id;
         child.parentTitle = parent.title;
