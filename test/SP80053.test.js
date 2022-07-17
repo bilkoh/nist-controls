@@ -195,4 +195,22 @@ describe("Testing SP80053 controls", () => {
       true
     );
   });
+
+  it("render -- statements for withdrawn controls should be generated ", (done) => {
+    // prettier-ignore
+    const testData = [{ statement: "[Withdrawn: Incorporated into AC-2, AU-6]." },];
+    sp.getControlById(
+      "AC-13",
+      (err, el) => {
+        try {
+          const renderedCtl = el.render(["withdrawn", "statements"]);
+          assert.deepEqual(renderedCtl.statements, testData);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      },
+      true
+    );
+  });
 });

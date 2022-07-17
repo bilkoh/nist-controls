@@ -31,6 +31,8 @@ exports.makeControl = (data) => {
       if (_.get(guidance, "prose")) {
         return renderGuidance(_.get(guidance, "prose"));
       }
+
+      return null;
     },
     statements: () => {
       // recursive function b/c statements have nested statements (parts)
@@ -117,27 +119,69 @@ exports.makeControl = (data) => {
         return t;
       };
 
-      // we find our statements in the parts field
-      const parts = _.get(controlData, "parts", []);
-      const statementData = _.filter(parts, { name: "statement" })[0];
-      // param needed to replace placeholders in statements
-      const params = _.get(controlData, "params");
-      let statements = [];
+      // check if withdrawn, if true, we generate statement from `links`
+      if (
+        _.find(_.get(controlData, "props", {}), {
+          name: "status",
+          value: "withdrawn",
+        })
+      ) {
+        // this is a withdrawn control
+        const links = _.get(controlData, "links", null);
+        const statements = {};
 
-      // statements
-      if (_.get(statementData, "prose")) {
-        // for single-line, the goods are in `prose` key whose value is a string
-        const line = _.get(statementData, "prose");
-        statements.push(line);
-        statements = processParts(statements, params);
-      } else if (_.isArray(_.get(statementData, "parts"))) {
-        // for multi-line `statements` the goods are within in an array in the `parts` key whose value is an array
-        statements = _.get(statementData, "parts");
+        if (Array.isArray(links)) {
+          links.forEach((e) => {
+            const k = _.get(e, "rel");
+            if (k) {
+              const rel = _.get(statements, k, []);
+              let href = _.get(e, "href");
+              if (href.startsWith("#")) href = href.slice(1).toUpperCase();
+              rel.push(href);
+              statements[k] = rel;
+            }
+          });
 
-        statements = processParts(statements, params);
+          let statement = "";
+          if (statements["incorporated-into"]) {
+            const ids = statements["incorporated-into"];
+            statement = `[Withdrawn: Incorporated into ${ids.join(", ")}].`;
+            return [{ statement: statement }];
+          } else if (statements["moved-to"]) {
+            const ids = statements["moved-to"];
+            statement = `[Withdrawn: Moved to ${ids.join(", ")}].`;
+            return [{ statement: statement }];
+          } else {
+            return [];
+          }
+        } else {
+          return []; // control is withdrawn, but no reason found in data source
+        }
+      } else {
+        // this is NOT a withdrawn control
+
+        // we find our statements in the parts field
+        const parts = _.get(controlData, "parts", []);
+        const statementData = _.filter(parts, { name: "statement" })[0];
+        // param needed to replace placeholders in statements
+        const params = _.get(controlData, "params");
+        let statements = [];
+
+        // statements
+        if (_.get(statementData, "prose")) {
+          // for single-line, the goods are in `prose` key whose value is a string
+          const line = _.get(statementData, "prose");
+          statements.push(line);
+          statements = processParts(statements, params);
+        } else if (_.isArray(_.get(statementData, "parts"))) {
+          // for multi-line `statements` the goods are within in an array in the `parts` key whose value is an array
+          statements = _.get(statementData, "parts");
+
+          statements = processParts(statements, params);
+        }
+
+        return statements;
       }
-
-      return statements;
     },
     related: () => {
       const links = _.get(controlData, "links");
