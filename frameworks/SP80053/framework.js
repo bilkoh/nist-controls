@@ -5,21 +5,27 @@ require("deepdash")(_);
 // brings in missing data from other data source (baselines)
 // standardizes controlId case (upper)
 // adds parent detail to control/enhancement
-const initFrameworkData = async (d) => {
+const initFrameworkData = async (data) => {
   const bl = require("./baselines");
   const util = require("util");
   const getBaselinesPromisified = util.promisify(bl.getBaselines);
   const allBaselines = await getBaselinesPromisified();
 
+  // update family id `ac` to `AC`
+  data = data.map((family) => {
+    family.id = _.toUpper(family.id);
+    return family;
+  });
+
   return _.eachDeep(
-    d,
+    data,
     (child, i, parent, ctx) => {
       if (
         (child.id && child.class === "SP800-53") ||
         child.class === "SP800-53-enhancement"
       ) {
         // force upper case
-        child.id = child.id.toUpperCase();
+        child.id = _.toUpper(child.id);
 
         // check if control is withdrawn
         child.withdrawn = false;
@@ -62,8 +68,7 @@ exports.makeFramework = (data) => {
   };
 
   const getFamiliesById = (controlId, callback) => {
-    // force lowercase
-    controlId = controlId.toLowerCase();
+    controlId = _.toUpper(controlId);
 
     getFamilies((err, families) => {
       const family = _.find(families, (el) => el.id === controlId);
