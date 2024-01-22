@@ -69,7 +69,7 @@ if (options.framework == "SP80053") {
       switch (options.format) {
         case "JSON":
           // Handle json format
-          let jsonArray = el;
+          let jsonArray = el.map((ctl) => ctl.render());
           saveOutput(options.output, JSON.stringify(jsonArray));
           break;
         case "CSV":
