@@ -23,7 +23,7 @@ const options = yargs
   .option("format", {
     describe: "Output file format",
     type: "string",
-    choices: ["CSV"],
+    choices: ["CSV", "JSON"],
     default: "CSV",
     coerce: (opt) => opt.toUpperCase(),
   })
@@ -66,25 +66,38 @@ if (options.framework == "SP80053") {
   ];
   sp.getControls((err, el) => {
     try {
-      let csvArray = el.map((ctl) => {
-        const renderedCtl = ctl.render();
-        const row = [];
+      switch (options.format) {
+        case "JSON":
+          // Handle json format
+          let jsonArray = el;
+          saveOutput(options.output, JSON.stringify(jsonArray));
+          break;
+        case "CSV":
+          // Handle csv format
+          let csvArray = el.map((ctl) => {
+            const renderedCtl = ctl.render();
+            const row = [];
 
-        row.push(renderedCtl.framework);
-        row.push(renderedCtl.parent.title);
-        row.push(renderedCtl.controlId);
-        row.push(renderedCtl.baselines.join(","));
-        row.push(renderedCtl.title);
-        row.push(generateStatementList(renderedCtl.statements).join("\n"));
+            row.push(renderedCtl.framework);
+            row.push(renderedCtl.parent.title);
+            row.push(renderedCtl.controlId);
+            row.push(renderedCtl.baselines.join(","));
+            row.push(renderedCtl.title);
+            row.push(generateStatementList(renderedCtl.statements).join("\n"));
 
-        return row;
-      });
+            return row;
+          });
 
-      csvArray = [...[columns], ...csvArray];
+          csvArray = [...[columns], ...csvArray];
 
-      const output = arrayToCSV(csvArray);
+          const output = arrayToCSV(csvArray);
 
-      saveOutput(options.output, output);
+          saveOutput(options.output, output);
+          break;
+        default:
+          // Handle unknown format
+          console.log("Unknown format: " + options.format);
+      }
     } catch (err) {
       console.error(err);
     }
